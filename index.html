@@ -5,106 +5,143 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>AceNodes Cart + Checkout</title>
 <style>
-  body {
-    margin: 0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #121212;
-    color: #eee;
-  }
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #121212;
+  color: #eee;
+}
 
-  /* Floating Cart Button */
-  .cart-button {
-    position: fixed;
-    top: 50%;
-    right: 20px;
-    transform: translateY(-50%);
-    background: #1db954;
-    border-radius: 50%;
-    width: 60px;
-    height: 60px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    z-index: 1000;
-  }
-  .cart-button:hover { background: #17a64a; transform: translateY(-50%) scale(1.05);}
-  .cart-button svg { width:28px; height:28px; fill:#121212; }
+/* Floating Cart Button */
+.cart-button {
+  position: fixed;
+  top: 50%;
+  right: 20px;
+  transform: translateY(-50%);
+  background: #1db954;
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  z-index: 1000;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+.cart-button.hidden { opacity: 0; pointer-events: none; }
+.cart-button:hover { background: #17a64a; transform: translateY(-50%) scale(1.05);}
+.cart-button svg { width:28px; height:28px; fill:#121212; }
 
-  /* Cart Panel */
-  .cart-panel {
-    position: fixed;
-    top:0;
-    right:-320px;
-    width:300px;
-    height:100%;
-    background:#1e1e1e;
-    box-shadow:-2px 0 10px rgba(0,0,0,0.7);
-    display:flex;
-    flex-direction:column;
-    transition: right 0.3s ease;
-    z-index: 900;
-  }
-  .cart-panel.open { right:0; }
+/* Cart Panel */
+.cart-panel {
+  position: fixed;
+  top:0;
+  right:-320px;
+  width:300px;
+  height:100%;
+  background:#1e1e1e;
+  box-shadow:-2px 0 10px rgba(0,0,0,0.7);
+  display:flex;
+  flex-direction:column;
+  transition: right 0.4s ease;
+  z-index: 900;
+}
+.cart-panel.open { right:0; }
 
-  .cart-header {
-    background:#1db954;
-    color:#121212;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    padding:1rem;
-    font-weight:bold;
-  }
-  .close-cart { background:transparent; border:none; font-size:1.4rem; color:#121212; cursor:pointer; }
+.cart-header {
+  background:#1db954;
+  color:#121212;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:1rem;
+  font-weight:bold;
+}
+.close-cart { background:transparent; border:none; font-size:1.4rem; color:#121212; cursor:pointer; }
 
-  .cart-items { flex-grow:1; padding:1rem; overflow-y:auto;}
-  .cart-items p { color:#ccc; font-size:0.95rem; }
+.cart-items { flex-grow:1; padding:1rem; overflow-y:auto;}
+.cart-items p { color:#ccc; font-size:0.95rem; }
 
-  .cart-footer { padding:1rem; border-top:1px solid #333; display:flex; justify-content:space-between; align-items:center;}
-  .checkout-btn { background:#1db954; border:none; color:#121212; font-weight:bold; padding:0.5rem 1rem; border-radius:4px; cursor:pointer;}
-  .checkout-btn:hover { background:#17a64a; }
+.cart-footer { padding:1rem; border-top:1px solid #333; display:flex; justify-content:space-between; align-items:center;}
+.checkout-btn { background:#1db954; border:none; color:#121212; font-weight:bold; padding:0.5rem 1rem; border-radius:4px; cursor:pointer;}
+.checkout-btn:hover { background:#17a64a; }
 
-  /* Checkout overlay */
-  .checkout-page {
-    position: fixed;
-    top:0; left:0;
-    width:100%; height:100%;
-    background: rgba(18,18,18,0.95);
-    display:none;
-    justify-content:center;
-    align-items:center;
-    z-index: 1001;
-  }
-  .checkout-page.active { display:flex; }
+/* Checkout overlay */
+.checkout-page {
+  position: fixed;
+  top:0; left:0;
+  width:100%; height:100%;
+  background: rgba(18,18,18,0.95);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s ease;
+  z-index: 1001;
+}
+.checkout-page.active { opacity: 1; visibility: visible; }
 
-  .checkout-box {
-    background:#1e1e1e;
-    padding:2rem;
-    border-radius:12px;
-    width:90%;
-    max-width:400px;
-    box-shadow:0 6px 20px rgba(0,0,0,0.6);
-  }
-  .checkout-box h2 { color:#1db954; margin-bottom:1rem; text-align:center;}
-  .checkout-box label { display:block; margin-bottom:6px; font-size:14px; font-weight:bold; color:#ccc;}
-  .checkout-box input { width:100%; padding:10px; margin-bottom:6px; border:1px solid #333; border-radius:6px; background:#2a2a2a; color:#eee;}
-  .error-msg { color:#ff4d4d; font-size:12px; margin-bottom:8px; display:none;}
+.checkout-box {
+  background:#1e1e1e;
+  padding:2rem;
+  border-radius:12px;
+  width:90%;
+  max-width:400px;
+  box-shadow:0 6px 20px rgba(0,0,0,0.6);
+}
+.checkout-box h2 { color:#1db954; margin-bottom:1rem; text-align:center;}
+.checkout-box label { display:block; margin-bottom:6px; font-size:14px; font-weight:bold; color:#ccc;}
+.checkout-box input { width:100%; padding:10px; margin-bottom:6px; border:1px solid #333; border-radius:6px; background:#2a2a2a; color:#eee;}
+.error-msg { color:#ff4d4d; font-size:12px; margin-bottom:8px; display:none;}
 
-  .checkout-box button { width:100%; padding:12px; background:#1db954; color:#121212; border:none; border-radius:8px; font-weight:bold; cursor:pointer; margin-top:10px;}
-  .checkout-box button:hover { background:#17a64a;}
+.checkout-box button { width:100%; padding:12px; background:#1db954; color:#121212; border:none; border-radius:8px; font-weight:bold; cursor:pointer; margin-top:10px;}
+.checkout-box button:hover { background:#17a64a;}
 
-  .back-btn { display:inline-block; margin-top:10px; text-align:center; background:transparent; border:none; color:#1db954; cursor:pointer; font-size:14px;}
+.back-btn { display:inline-block; margin-top:10px; text-align:center; background:transparent; border:none; color:#1db954; cursor:pointer; font-size:14px;}
 
-  /* Hide browser autofill icons */
-  input::-webkit-contacts-auto-fill-button,
-  input::-webkit-credentials-auto-fill-button {
-      display: none !important;
-      visibility: hidden !important;
-      pointer-events: none !important;
-      position: absolute !important;
-      right: 0 !important;
-  }
+/* Success page */
+.success-page {
+  position: fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:#121212;
+  color:#1db954;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:3rem;
+  z-index:2000;
+  text-align:center;
+  flex-direction:column;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s ease;
+}
+.success-page.active { opacity: 1; visibility: visible; }
+
+@keyframes fadeIn {
+  0% { opacity:0; transform:scale(0.9);}
+  100% { opacity:1; transform:scale(1);}
+}
+
+/* Confetti */
+.confetti {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: #1db954;
+  top:0;
+  animation: confettiFall 3s linear forwards;
+}
+@keyframes confettiFall {
+  0% { transform: translateY(0) rotate(0deg);}
+  100% { transform: translateY(100vh) rotate(360deg);}
+}
 </style>
 </head>
 <body>
@@ -160,6 +197,12 @@
   </div>
 </div>
 
+<!-- Success Page -->
+<div class="success-page" id="successPage">
+  ✅ Payment Successful!
+  <button id="backToShop" style="margin-top:30px; padding:15px 30px; font-size:1rem; border:none; border-radius:8px; background:#1db954; color:#121212; cursor:pointer;">Back to Shop</button>
+</div>
+
 <script>
 const cartBtn = document.getElementById('cartBtn');
 const cartPanel = document.getElementById('cartPanel');
@@ -168,72 +211,69 @@ const goCheckout = document.getElementById('goCheckout');
 const checkoutPage = document.getElementById('checkoutPage');
 const backToCart = document.getElementById('backToCart');
 const checkoutForm = document.getElementById('checkoutForm');
+const successPage = document.getElementById('successPage');
 
 // open/close cart
-cartBtn.addEventListener('click', () => {
+cartBtn.addEventListener('click',()=>{
   cartPanel.classList.add('open');
-  cartBtn.style.display = 'none';
+  cartBtn.classList.add('hidden'); // hide cart button when panel open
 });
-closeCart.addEventListener('click', () => {
+closeCart.addEventListener('click',()=>{
   cartPanel.classList.remove('open');
-  cartBtn.style.display = 'flex';
+  cartBtn.classList.remove('hidden');
 });
 
 // checkout overlay
-goCheckout.addEventListener('click', () => {
+goCheckout.addEventListener('click',()=>{
   cartPanel.classList.remove('open');
   checkoutPage.classList.add('active');
-  cartBtn.style.display = 'none';
-
-  // Reset form and hide errors
-  checkoutForm.reset();
-  document.querySelectorAll('.error-msg').forEach(e => e.style.display = 'none');
 });
-
-// back to cart
-backToCart.addEventListener('click', () => {
+backToCart.addEventListener('click',()=>{
   checkoutPage.classList.remove('active');
   cartPanel.classList.add('open');
-  cartBtn.style.display = 'none';
 });
 
-// form validation
-checkoutForm.addEventListener('submit', e => {
+// form validation and success
+checkoutForm.addEventListener('submit', e=>{
   e.preventDefault();
-  let valid = true;
+  let valid=true;
+  const name=document.getElementById('name');
+  const email=document.getElementById('email');
+  const card=document.getElementById('card');
+  const cvv=document.getElementById('cvv');
+  const expiry=document.getElementById('expiry');
 
-  const name = document.getElementById('name');
-  const email = document.getElementById('email');
-  const card = document.getElementById('card');
-  const cvv = document.getElementById('cvv');
-  const expiry = document.getElementById('expiry');
+  if(!name.value.trim().includes(' ')){document.getElementById('nameError').style.display='block'; valid=false;} else {document.getElementById('nameError').style.display='none';}
+  const emailRegex=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if(!emailRegex.test(email.value)){document.getElementById('emailError').style.display='block'; valid=false;} else {document.getElementById('emailError').style.display='none';}
+  if(!/^\d{16}$/.test(card.value)){document.getElementById('cardError').style.display='block'; valid=false;} else {document.getElementById('cardError').style.display='none';}
+  if(!/^\d{3}$/.test(cvv.value)){document.getElementById('cvvError').style.display='block'; valid=false;} else {document.getElementById('cvvError').style.display='none';}
+  if(!/^(0[1-9]|1[0-2])\/\d{2}$/.test(expiry.value)){document.getElementById('expiryError').style.display='block'; valid=false;} else {document.getElementById('expiryError').style.display='none';}
 
-  // Name validation (at least 2 words)
-  if (!name.value.trim().includes(' ')) { document.getElementById('nameError').style.display = 'block'; valid = false; } 
-  else { document.getElementById('nameError').style.display = 'none'; }
+  if(valid){
+    checkoutPage.classList.remove('active');
+    successPage.classList.add('active');
 
-  // Email
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email.value)) { document.getElementById('emailError').style.display = 'block'; valid = false; } 
-  else { document.getElementById('emailError').style.display = 'none'; }
-
-  // Card
-  if (!/^\d{16}$/.test(card.value)) { document.getElementById('cardError').style.display = 'block'; valid = false; } 
-  else { document.getElementById('cardError').style.display = 'none'; }
-
-  // CVV
-  if (!/^\d{3}$/.test(cvv.value)) { document.getElementById('cvvError').style.display = 'block'; valid = false; } 
-  else { document.getElementById('cvvError').style.display = 'none'; }
-
-  // Expiry
-  if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(expiry.value)) { document.getElementById('expiryError').style.display = 'block'; valid = false; } 
-  else { document.getElementById('expiryError').style.display = 'none'; }
-
-  if (valid) {
-    alert("Form is valid! Here you would process the payment.");
     checkoutForm.reset();
-    document.querySelectorAll('.error-msg').forEach(e => e.style.display = 'none');
+    document.querySelectorAll('.error-msg').forEach(e=>e.style.display='none');
+
+    // create simple confetti
+    for(let i=0;i<50;i++){
+      const confetti = document.createElement('div');
+      confetti.classList.add('confetti');
+      confetti.style.left = Math.random()*100 + 'vw';
+      confetti.style.background = `hsl(${Math.random()*360}, 70%, 50%)`;
+      confetti.style.animationDuration = 2 + Math.random()*2 + 's';
+      successPage.appendChild(confetti);
+      setTimeout(()=> confetti.remove(),4000);
+    }
   }
+});
+
+// Back to shop button
+document.getElementById('backToShop').addEventListener('click',()=>{
+  successPage.classList.remove('active');
+  cartBtn.classList.remove('hidden');
 });
 </script>
 </body>
