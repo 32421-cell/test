@@ -95,6 +95,16 @@
   .checkout-box button:hover { background:#17a64a;}
 
   .back-btn { display:inline-block; margin-top:10px; text-align:center; background:transparent; border:none; color:#1db954; cursor:pointer; font-size:14px;}
+
+  /* Hide browser autofill icons */
+  input::-webkit-contacts-auto-fill-button,
+  input::-webkit-credentials-auto-fill-button {
+      display: none !important;
+      visibility: hidden !important;
+      pointer-events: none !important;
+      position: absolute !important;
+      right: 0 !important;
+  }
 </style>
 </head>
 <body>
@@ -159,37 +169,35 @@ const checkoutPage = document.getElementById('checkoutPage');
 const backToCart = document.getElementById('backToCart');
 const checkoutForm = document.getElementById('checkoutForm');
 
-// Open/close cart
+// open/close cart
 cartBtn.addEventListener('click', () => {
   cartPanel.classList.add('open');
-  cartBtn.style.display = 'none'; // hide button when cart opens
+  cartBtn.style.display = 'none';
 });
-
 closeCart.addEventListener('click', () => {
   cartPanel.classList.remove('open');
-  cartBtn.style.display = 'flex'; // show button when cart closes
+  cartBtn.style.display = 'flex';
 });
 
-// Checkout overlay
+// checkout overlay
 goCheckout.addEventListener('click', () => {
   cartPanel.classList.remove('open');
   checkoutPage.classList.add('active');
-  cartBtn.style.display = 'none'; // hide button during checkout
+  cartBtn.style.display = 'none';
+
+  // Reset form and hide errors
+  checkoutForm.reset();
+  document.querySelectorAll('.error-msg').forEach(e => e.style.display = 'none');
 });
 
+// back to cart
 backToCart.addEventListener('click', () => {
   checkoutPage.classList.remove('active');
   cartPanel.classList.add('open');
+  cartBtn.style.display = 'none';
 });
 
-// Reset form and errors whenever checkout is reopened
-checkoutPage.addEventListener('transitionend', () => {
-  checkoutForm.reset();
-  const errors = document.querySelectorAll('.error-msg');
-  errors.forEach(e => e.style.display = 'none');
-});
-
-// Validation
+// form validation
 checkoutForm.addEventListener('submit', e => {
   e.preventDefault();
   let valid = true;
@@ -201,34 +209,31 @@ checkoutForm.addEventListener('submit', e => {
   const expiry = document.getElementById('expiry');
 
   // Name validation (at least 2 words)
-  if(!name.value.trim().includes(' ')){document.getElementById('nameError').style.display='block'; valid=false;} else {document.getElementById('nameError').style.display='none';}
+  if (!name.value.trim().includes(' ')) { document.getElementById('nameError').style.display = 'block'; valid = false; } 
+  else { document.getElementById('nameError').style.display = 'none'; }
 
   // Email
-  const emailRegex=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if(!emailRegex.test(email.value)){document.getElementById('emailError').style.display='block'; valid=false;} else {document.getElementById('emailError').style.display='none';}
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email.value)) { document.getElementById('emailError').style.display = 'block'; valid = false; } 
+  else { document.getElementById('emailError').style.display = 'none'; }
 
   // Card
-  if(!/^\d{16}$/.test(card.value)){document.getElementById('cardError').style.display='block'; valid=false;} else {document.getElementById('cardError').style.display='none';}
+  if (!/^\d{16}$/.test(card.value)) { document.getElementById('cardError').style.display = 'block'; valid = false; } 
+  else { document.getElementById('cardError').style.display = 'none'; }
 
   // CVV
-  if(!/^\d{3}$/.test(cvv.value)){document.getElementById('cvvError').style.display='block'; valid=false;} else {document.getElementById('cvvError').style.display='none';}
+  if (!/^\d{3}$/.test(cvv.value)) { document.getElementById('cvvError').style.display = 'block'; valid = false; } 
+  else { document.getElementById('cvvError').style.display = 'none'; }
 
   // Expiry
-  if(!/^(0[1-9]|1[0-2])\/\d{2}$/.test(expiry.value)){document.getElementById('expiryError').style.display='block'; valid=false;} else {document.getElementById('expiryError').style.display='none';}
+  if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(expiry.value)) { document.getElementById('expiryError').style.display = 'block'; valid = false; } 
+  else { document.getElementById('expiryError').style.display = 'none'; }
 
-  if(valid){
-    alert("✅ Form submitted successfully! (No real payment processing)");
+  if (valid) {
+    alert("Form is valid! Here you would process the payment.");
     checkoutForm.reset();
-    const errors = document.querySelectorAll('.error-msg');
-    errors.forEach(e => e.style.display = 'none');
-    checkoutPage.classList.remove('active');
-    cartBtn.style.display = 'flex'; // show cart button after closing checkout
+    document.querySelectorAll('.error-msg').forEach(e => e.style.display = 'none');
   }
-});
-</script>
-</body>
-</html>
-
 });
 </script>
 </body>
